@@ -1,0 +1,306 @@
+/* ==========================================================================
+MarkFlow — Custom Scrollbars, Rendered Markdown Typography & Animations
+========================================================================== */
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+width: 7px;
+height: 7px;
+}
+
+::-webkit-scrollbar-track {
+background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+background: rgba(148, 163, 184, 0.35);
+border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: rgba(148, 163, 184, 0.55);
+}
+
+/* Rendered Markdown Typography */
+.markdown-body {
+line-height: 1.75;
+font-size: 1.025rem;
+word-wrap: break-word;
+}
+
+.markdown-body > *:first-child {
+margin-top: 0 !important;
+}
+
+.markdown-body h1 {
+font-size: 2.15rem;
+font-weight: 800;
+letter-spacing: -0.025em;
+line-height: 1.2;
+margin-top: 1.75rem;
+margin-bottom: 1rem;
+padding-bottom: 0.45rem;
+border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.markdown-body h2 {
+font-size: 1.55rem;
+font-weight: 700;
+letter-spacing: -0.02em;
+line-height: 1.3;
+margin-top: 1.75rem;
+margin-bottom: 0.75rem;
+padding-bottom: 0.3rem;
+border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.markdown-body h3 {
+font-size: 1.25rem;
+font-weight: 600;
+line-height: 1.4;
+margin-top: 1.4rem;
+margin-bottom: 0.6rem;
+}
+
+.markdown-body h4 {
+font-size: 1.05rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.04em;
+margin-top: 1.2rem;
+margin-bottom: 0.5rem;
+opacity: 0.85;
+}
+
+.markdown-body p {
+margin-top: 0.85rem;
+margin-bottom: 0.85rem;
+}
+
+.markdown-body a {
+color: #4f46e5;
+text-decoration: underline;
+text-underline-offset: 3px;
+font-weight: 500;
+}
+
+.dark .markdown-body a {
+color: #818cf8;
+}
+
+.markdown-body ul {
+list-style-type: disc;
+padding-left: 1.65rem;
+margin-top: 0.75rem;
+margin-bottom: 0.75rem;
+}
+
+.markdown-body ol {
+list-style-type: decimal;
+padding-left: 1.65rem;
+margin-top: 0.75rem;
+margin-bottom: 0.75rem;
+}
+
+.markdown-body li {
+margin-top: 0.3rem;
+margin-bottom: 0.3rem;
+}
+
+/* Interactive Task List Styling */
+.markdown-body ul.contains-task-list,
+.markdown-body li.task-list-item {
+list-style-type: none;
+}
+
+.markdown-body ul:has(input[type="checkbox"]) {
+list-style-type: none;
+padding-left: 0.25rem;
+}
+
+.markdown-body li:has(> input[type="checkbox"]) {
+display: flex;
+align-items: flex-start;
+gap: 0.65rem;
+padding: 0.25rem 0.45rem;
+border-radius: 0.5rem;
+transition: background-color 0.15s ease;
+}
+
+.markdown-body li:has(> input[type="checkbox"]):hover {
+background-color: rgba(99, 102, 241, 0.06);
+}
+
+.markdown-body input[type="checkbox"].md-task-checkbox {
+appearance: none;
+-webkit-appearance: none;
+width: 1.15rem;
+height: 1.15rem;
+margin-top: 0.3rem;
+border-radius: 0.35rem;
+border: 1.75px solid #94a3b8;
+background-color: transparent;
+cursor: pointer;
+flex-shrink: 0;
+display: inline-grid;
+place-content: center;
+transition: all 0.15s ease;
+}
+
+.markdown-body input[type="checkbox"].md-task-checkbox:hover {
+border-color: #6366f1;
+}
+
+.markdown-body input[type="checkbox"].md-task-checkbox:checked {
+background-color: #6366f1;
+border-color: #6366f1;
+}
+
+.markdown-body input[type="checkbox"].md-task-checkbox:checked::before {
+content: "";
+width: 0.62rem;
+height: 0.62rem;
+background-color: #ffffff;
+clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.markdown-body li.task-checked {
+text-decoration: line-through;
+opacity: 0.6;
+}
+
+/* Blockquotes & Callouts */
+.markdown-body blockquote {
+border-left: 4px solid #6366f1;
+background-color: rgba(99, 102, 241, 0.06);
+padding: 0.75rem 1.15rem;
+margin: 1.15rem 0;
+border-radius: 0 0.65rem 0.65rem 0;
+}
+
+.markdown-body blockquote p {
+margin: 0.25rem 0;
+}
+
+/* Inline Code & Fenced Code Blocks */
+.markdown-body code:not(pre code) {
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.85em;
+padding: 0.15rem 0.4rem;
+border-radius: 0.375rem;
+background-color: rgba(148, 163, 184, 0.16);
+color: #e11d48;
+}
+
+.dark .markdown-body code:not(pre code) {
+background-color: rgba(148, 163, 184, 0.18);
+color: #fb7185;
+}
+
+.code-block-wrapper {
+position: relative;
+margin: 1.25rem 0;
+border-radius: 0.75rem;
+overflow: hidden;
+border: 1px solid rgba(148, 163, 184, 0.22);
+background-color: #0f172a;
+color: #f8fafc;
+}
+
+.code-block-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.45rem 0.9rem;
+background-color: #1e293b;
+border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.75rem;
+color: #94a3b8;
+}
+
+.markdown-body pre {
+margin: 0;
+padding: 1rem 1.15rem;
+overflow-x: auto;
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.875rem;
+line-height: 1.65;
+}
+
+/* Tables */
+.table-wrapper {
+width: 100%;
+overflow-x: auto;
+margin: 1.25rem 0;
+border-radius: 0.75rem;
+border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.markdown-body table {
+width: 100%;
+border-collapse: collapse;
+text-align: left;
+font-size: 0.925rem;
+}
+
+.markdown-body th {
+background-color: rgba(148, 163, 184, 0.12);
+font-weight: 600;
+padding: 0.65rem 0.95rem;
+border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.markdown-body td {
+padding: 0.6rem 0.95rem;
+border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.markdown-body tr:last-child td {
+border-bottom: none;
+}
+
+.markdown-body tr:hover td {
+background-color: rgba(148, 163, 184, 0.05);
+}
+
+/* Horizontal Rule & Images */
+.markdown-body hr {
+border: 0;
+height: 1px;
+background: rgba(148, 163, 184, 0.3);
+margin: 1.75rem 0;
+}
+
+.markdown-body img {
+max-width: 100%;
+height: auto;
+border-radius: 0.75rem;
+margin: 1rem 0;
+border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Editor Textarea & Mirror Div Alignment */
+.editor-font {
+font-family: 'JetBrains Mono', monospace;
+font-size: 0.9375rem;
+line-height: 1.72;
+letter-spacing: 0;
+tab-size: 2;
+}
+
+/* Slash Menu Pop-In Animation */
+@keyframes popIn {
+from {
+opacity: 0;
+transform: translateY(-4px) scale(0.98);
+}
+to {
+opacity: 1;
+transform: translateY(0) scale(1);
+}
+}
+
+.slash-menu-animate {
+animation: popIn 0.12s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

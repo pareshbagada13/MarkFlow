@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarkFlow — Markdown Reader & Slash Editor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='32' fill='%231e1e2e'/%3E%3Cpath d='M24,92C48,80 64,104 88,88C100,80 102,64 104,48' stroke='%233174f0' stroke-width='10' stroke-linecap='round' fill='none'/%3E%3Cpath d='M32,76V44L48,60L64,44V76' stroke='%23ffffff' stroke-width='10' stroke-linejoin='round' stroke-linecap='round' fill='none'/%3E%3Cpath d='M82,40V64 M72,54L82,64L92,54' stroke='%2389b4fa' stroke-width='10' stroke-linejoin='round' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- External Libraries: Marked, DOMPurify, Lucide -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body
+  class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 h-screen flex flex-col overflow-hidden transition-colors duration-200 selection:bg-indigo-500/20 selection:text-indigo-700 dark:selection:text-indigo-300">
+
+  <!-- Hidden File Input for Opening .md files -->
+  <input type="file" id="fileInput" accept=".md,.markdown,.txt,text/markdown,text/plain" class="hidden" />
+
+  <!-- Top Navigation Header -->
+  <header
+    class="flex-none bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-3 sm:px-5 py-2.5 z-30">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+
+      <!-- Left: Brand & Editable Document Title -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <!-- <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-sm flex-shrink-0">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+        </div> -->
+        <svg class="app-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="32" height="32"
+          fill="none">
+          <!-- Rounded Base -->
+          <rect width="128" height="128" rx="28" fill="#1e1e2e" />
+
+          <!-- Ocean/Water Flow Lines -->
+          <path d="M 24,104 C 44,92 60,116 84,100 C 96,92 100,76 104,60" stroke="#89b4fa" stroke-width="6"
+            stroke-linecap="round" opacity="0.4" />
+          <path d="M 24,92 C 48,80 64,104 88,88 C 100,80 102,64 104,48" stroke="#3174f0" stroke-width="8"
+            stroke-linecap="round" />
+
+          <!-- Markdown "M" with a fluid wavy finish -->
+          <path d="M 32,76 V 44 L 48,60 L 64,44 V 76" stroke="#ffffff" stroke-width="9" stroke-linejoin="round"
+            stroke-linecap="round" />
+
+          <!-- Markdown Downward Arrow -->
+          <path d="M 82,40 V 64 M 72,54 L 82,64 L 92,54" stroke="#89b4fa" stroke-width="8" stroke-linejoin="round"
+            stroke-linecap="round" />
+        </svg>
+        <div class="flex flex-col min-w-0">
+          <div class="flex items-center gap-1.5">
+            <input id="docTitleInput" type="text" value="welcome-guide.md" aria-label="Document filename"
+              class="font-semibold text-sm sm:text-base bg-transparent border border-transparent hover:border-slate-200 dark:hover:border-slate-700 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-800 rounded-lg px-1.5 py-0.5 outline-none transition-colors w-36 sm:w-48 truncate" />
+            <span id="saveIndicator"
+              class="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Saved
+            </span>
+          </div>
+          <span class="text-[11px] text-slate-400 dark:text-slate-500 px-1.5 hidden sm:block">
+            Type <kbd
+              class="px-1 py-0.2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-mono">/</kbd>
+            in edit mode for commands
+          </span>
+        </div>
+      </div>
+
+      <!-- Center: View Mode Switcher (Edit / Split / Reader) -->
+      <div
+        class="flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/70 order-3 sm:order-2 w-full sm:w-auto justify-center">
+        <button data-mode="edit"
+          class="mode-btn flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
+          title="Pure Markdown Edit Mode">
+          <i data-lucide="pen-line" class="w-3.5 h-3.5"></i>
+          <span>Edit</span>
+        </button>
+        <button data-mode="split"
+          class="mode-btn flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
+          title="Side-by-Side Live Editor & Preview">
+          <i data-lucide="columns-2" class="w-3.5 h-3.5"></i>
+          <span>Split</span>
+        </button>
+        <button data-mode="preview"
+          class="mode-btn flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all"
+          title="Clean Reader View">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>Reader</span>
+        </button>
+      </div>
+
+      <!-- Right: File Actions & Theme Toggle -->
+      <div class="flex items-center gap-1.5 order-2 sm:order-3">
+        <button id="newFileBtn"
+          class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+          title="New Blank Document">
+          <i data-lucide="file-plus" class="w-4 h-4"></i>
+          <span class="hidden lg:inline">New</span>
+        </button>
+
+        <button id="openFileBtn"
+          class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+          title="Open .md File">
+          <i data-lucide="folder-open" class="w-4 h-4"></i>
+          <span class="hidden lg:inline">Open</span>
+        </button>
+
+        <button id="copyMdBtn"
+          class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+          title="Copy Markdown to Clipboard">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span class="hidden xl:inline">Copy MD</span>
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="relative" id="exportDropdownContainer">
+          <button id="exportMenuBtn"
+            class="px-2.5 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-1.5"
+            title="Download or Export">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 opacity-80"></i>
+          </button>
+
+          <div id="exportDropdown"
+            class="hidden absolute right-0 mt-1.5 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-50 slash-menu-animate">
+            <button id="downloadMdBtn"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5 transition-colors">
+              <i data-lucide="file-code" class="w-4 h-4 text-indigo-500"></i>
+              <div>
+                <div>Download Markdown</div>
+                <div class="text-[10px] text-slate-400">Raw .md source file</div>
+              </div>
+            </button>
+            <button id="downloadHtmlBtn"
+              class="w-full px-3.5 py-2 text-left text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5 transition-colors">
+              <i data-lucide="globe" class="w-4 h-4 text-emerald-500"></i>
+              <div>
+                <div>Export Styled HTML</div>
+                <div class="text-[10px] text-slate-400">Standalone .html webpage</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button id="themeToggleBtn"
+          class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Toggle Dark / Light Theme" aria-label="Toggle Dark Mode">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Area -->
+  <main id="workspace" class="flex-1 flex overflow-hidden relative">
+
+    <!-- Editor Pane -->
+    <section id="editorPane"
+      class="flex-1 flex flex-col min-w-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 relative">
+      <!-- Quick-Format Toolbar -->
+      <div
+        class="flex-none px-4 py-1.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/60 flex items-center justify-between gap-2 overflow-x-auto">
+        <div class="flex items-center gap-1">
+          <button type="button" data-quick="h1"
+            class="quick-fmt-btn px-2 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Heading 1">H1</button>
+          <button type="button" data-quick="h2"
+            class="quick-fmt-btn px-2 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Heading 2">H2</button>
+          <button type="button" data-quick="h3"
+            class="quick-fmt-btn px-2 py-1 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Heading 3">H3</button>
+          <div class="h-3.5 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
+          <button type="button" data-quick="bold"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Bold"><i data-lucide="bold" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-quick="italic"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Italic"><i data-lucide="italic" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-quick="strike"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Strikethrough"><i data-lucide="strikethrough" class="w-3.5 h-3.5"></i></button>
+          <div class="h-3.5 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
+          <button type="button" data-quick="bullet"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Bullet List"><i data-lucide="list" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-quick="checkbox"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Task Checkbox"><i data-lucide="check-square" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-quick="codeblock"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Code Block"><i data-lucide="code-2" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-quick="table"
+            class="quick-fmt-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+            title="Table"><i data-lucide="table" class="w-3.5 h-3.5"></i></button>
+        </div>
+
+        <button type="button" id="triggerSlashHintBtn"
+          class="flex items-center gap-1 text-[11px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1 rounded-lg transition-colors flex-shrink-0"
+          title="Open Slash Command Menu">
+          <i data-lucide="sparkles" class="w-3 h-3"></i>
+          <span>/ Commands</span>
+        </button>
+      </div>
+
+      <!-- Textarea Container -->
+      <div class="relative flex-1 overflow-hidden">
+        <textarea id="markdownEditor" spellcheck="true"
+          placeholder="Start writing in Markdown, or type '/' for commands..."
+          class="w-full h-full resize-none bg-transparent p-5 sm:p-8 lg:px-12 outline-none editor-font text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 overflow-y-auto"></textarea>
+
+        <!-- Hidden Mirror Div for Exact Cursor Coordinate Calculation -->
+        <div id="caretMirror" aria-hidden="true"
+          class="invisible fixed top-0 left-0 pointer-events-none whitespace-pre-wrap break-words editor-font p-5 sm:p-8 lg:px-12 overflow-hidden">
+        </div>
+      </div>
+    </section>
+
+    <!-- Preview / Reader Pane -->
+    <section id="previewPane" class="flex-1 flex flex-col min-w-0 bg-slate-50/70 dark:bg-slate-950 overflow-y-auto">
+      <div class="w-full max-w-3xl mx-auto px-5 sm:px-10 py-7 sm:py-10 flex-1">
+        <article id="markdownPreview" class="markdown-body text-slate-800 dark:text-slate-100"></article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Slash Command (/) Popup Menu -->
+  <div id="slashMenu" role="listbox" aria-label="Insert Markdown block"
+    class="hidden fixed z-50 w-72 sm:w-80 max-h-80 overflow-y-auto rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl shadow-2xl border border-slate-200/90 dark:border-slate-700 p-1.5 slash-menu-animate">
+    <div
+      class="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between border-b border-slate-100 dark:border-slate-700/70 mb-1">
+      <span>Insert Markdown Block</span>
+      <span id="slashFilterBadge" class="font-mono text-indigo-500 lowercase"></span>
+    </div>
+    <div id="slashMenuList" class="space-y-0.5"></div>
+  </div>
+
+  <!-- Custom Modal Dialog (Replaces alert / confirm) -->
+  <div id="modalOverlay"
+    class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div
+      class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-md w-full p-6 slash-menu-animate">
+      <div class="flex items-start gap-3.5">
+        <div
+          class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h3 id="modalTitle" class="text-base font-bold text-slate-900 dark:text-slate-100">Create New Document?</h3>
+          <p id="modalMessage" class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            This will clear the current editor contents. Make sure you have exported your Markdown if you want to keep a
+            copy.
+          </p>
+        </div>
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-2">
+        <button id="modalCancelBtn"
+          class="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          Cancel
+        </button>
+        <button id="modalConfirmBtn"
+          class="px-4 py-2 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors">
+          Create Blank File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-11 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Bottom Status Bar -->
+  <footer
+    class="flex-none bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800 px-4 py-1.5 text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2 z-20">
+    <div class="flex items-center gap-4">
+      <span id="wordCount">0 words</span>
+      <span id="charCount">0 chars</span>
+      <span id="readTime" class="hidden sm:inline">0 min read</span>
+      <span id="taskStats"
+        class="hidden md:inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium"></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="loadSampleBtn" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+        Load Sample Guide
+      </button>
+      <span class="text-slate-300 dark:text-slate-700">|</span>
+      <span>GitHub Flavored Markdown</span>
+    </div>
+  </footer>
+
+  <!-- Modular JavaScript Entry Point -->
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
